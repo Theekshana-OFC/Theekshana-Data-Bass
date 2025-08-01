@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>All Booked Tickets</title>
+  <style>
+    body {
+      background-color: #000;
+      color: white;
+      font-family: Arial, sans-serif;
+      padding: 30px;
+    }
+    .ticket-box {
+      background-color: #1c1c1c;
+      border-left: 4px solid red;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+    }
+    h2 {
+      color: red;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Booked Tickets</h2>
+  <div id="tickets"></div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <script>
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBKahEg0xykXxmi7Xeu7wdW1QTy70qOwFA",
+      authDomain: "databass-20cde.firebaseapp.com",
+      databaseURL: "https://databass-20cde-default-rtdb.firebaseio.com",
+      projectId: "databass-20cde",
+      storageBucket: "databass-20cde.firebasestorage.app",
+      messagingSenderId: "396898869714",
+      appId: "1:396898869714:web:4108cbb2fe556fc79ae80b",
+      measurementId: "G-G2LQFJ45E1"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const ticketsContainer = document.getElementById("tickets");
+
+    db.ref("bookings").on("value", (snapshot) => {
+      const data = snapshot.val();
+      ticketsContainer.innerHTML = ""; // clear before re-rendering
+      if (data) {
+        Object.values(data).forEach((ticket) => {
+          const div = document.createElement("div");
+          div.className = "ticket-box";
+          div.innerHTML = `
+            <p><strong>Name:</strong> ${ticket.name}</p>
+            <p><strong>Phone:</strong> ${ticket.whatsapp}</p>
+            <p><strong>Gender:</strong> ${ticket.gender}</p>
+            <p><strong>Price:</strong> Rs. ${ticket.price}</p>
+            <p><strong>Ticket No:</strong> ${ticket.ticketNumber}</p>
+          `;
+          ticketsContainer.appendChild(div);
+        });
+      } else {
+        ticketsContainer.innerHTML = "<p>No bookings found.</p>";
+      }
+    });
+  </script>
+</body>
+</html>
