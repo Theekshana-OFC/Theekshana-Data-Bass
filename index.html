@@ -20,12 +20,25 @@
     h2 {
       color: red;
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
+    }
+    #searchBar {
+      display: block;
+      margin: 0 auto 30px auto;
+      padding: 10px 15px;
+      width: 90%;
+      max-width: 500px;
+      font-size: 16px;
+      border: 2px solid red;
+      border-radius: 8px;
+      background-color: #111;
+      color: white;
     }
   </style>
 </head>
 <body>
   <h2>Booked Tickets</h2>
+  <input type="text" id="searchBar" placeholder="Search by Name or Phone...">
   <div id="tickets"></div>
 
   <!-- Firebase SDKs -->
@@ -49,26 +62,47 @@
     const db = firebase.database();
 
     const ticketsContainer = document.getElementById("tickets");
+    const searchBar = document.getElementById("searchBar");
 
+    let allTickets = [];
+
+    // Fetch tickets from Firebase
     db.ref("bookings").on("value", (snapshot) => {
       const data = snapshot.val();
-      ticketsContainer.innerHTML = ""; // clear before re-rendering
-      if (data) {
-        Object.values(data).forEach((ticket) => {
-          const div = document.createElement("div");
-          div.className = "ticket-box";
-          div.innerHTML = `
-            <p><strong>Name:</strong> ${ticket.name}</p>
-            <p><strong>Phone:</strong> ${ticket.whatsapp}</p>
-            <p><strong>Gender:</strong> ${ticket.gender}</p>
-            <p><strong>Price:</strong> Rs. ${ticket.price}</p>
-            <p><strong>Ticket No:</strong> ${ticket.ticketNumber}</p>
-          `;
-          ticketsContainer.appendChild(div);
-        });
-      } else {
+      allTickets = data ? Object.values(data) : [];
+      renderTickets(allTickets);
+    });
+
+    // Render tickets function
+    function renderTickets(tickets) {
+      ticketsContainer.innerHTML = "";
+      if (tickets.length === 0) {
         ticketsContainer.innerHTML = "<p>No bookings found.</p>";
+        return;
       }
+
+      tickets.forEach((ticket) => {
+        const div = document.createElement("div");
+        div.className = "ticket-box";
+        div.innerHTML = `
+          <p><strong>Name:</strong> ${ticket.name}</p>
+          <p><strong>Phone:</strong> ${ticket.whatsapp}</p>
+          <p><strong>Gender:</strong> ${ticket.gender}</p>
+          <p><strong>Price:</strong> Rs. ${ticket.price}</p>
+          <p><strong>Ticket No:</strong> ${ticket.ticketNumber}</p>
+        `;
+        ticketsContainer.appendChild(div);
+      });
+    }
+
+    // Search bar listener
+    searchBar.addEventListener("input", () => {
+      const query = searchBar.value.toLowerCase();
+      const filtered = allTickets.filter(ticket =>
+        ticket.name.toLowerCase().includes(query) ||
+        ticket.whatsapp.toLowerCase().includes(query)
+      );
+      renderTickets(filtered);
     });
   </script>
 </body>
